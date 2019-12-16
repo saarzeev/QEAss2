@@ -26,7 +26,6 @@ public class FileSystem {
         fileSystemTree = new Tree("root");
 
         fileStorage = new Space(m);
-
     }
 
     /**
@@ -39,22 +38,16 @@ public class FileSystem {
         Tree workingTree = fileSystemTree;
 
         if (name[0] != "root" || (FileExists(name) != null)) {
-
             throw new BadFileNameException();
-
         }
 
         if (DirExists(name) != null) {
-
             return;
-
         }
 
         //loop all the way, creating as we go down if necessary
         for (int i = 0; i < name.length; i++) {
-
             workingTree = workingTree.GetChildByName(name[i]);
-
         }
 
     }
