@@ -19,4 +19,23 @@ public class FileSystemStub extends FileSystem {
         }
         return new LeafStub("leafStub", 2);
     }
+
+    @Override
+    public void dir(String[] name) throws BadFileNameException {
+
+        TreeStub workingTree = fileSystemTreeStub;
+
+        if (name[0] != "root" || (FileExists(name) != null)) {
+            throw new BadFileNameException();
+        }
+
+        if (DirExists(name) != null) {
+            return;
+        }
+
+        //loop all the way, creating as we go down if necessary
+        for (int i = 0; i < name.length; i++) {
+            workingTree = workingTree.GetChildByName(name[i]);
+        }
+    }
 }

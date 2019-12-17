@@ -48,4 +48,15 @@ public class TreeTest {
 
         Assert.assertEquals(expecetd, actual);
     }
+
+    @Test
+    public void depthOfTreeShouldGrowByOneAfterAddingChild(){
+        Tree tree = new Tree("tree");
+        Tree subTree = tree.GetChildByName("subTree");
+
+        int expecetd = tree.depth + 1;
+        int actual = subTree.depth;
+
+        Assert.assertEquals(expecetd, actual);
+    }
 }
