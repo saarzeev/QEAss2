@@ -3,6 +3,9 @@ package system;
 import system.FileSystem;
 import system.OutOfSpaceException;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 class LeafStub extends system.Leaf {
 
     /**
@@ -24,14 +27,22 @@ class LeafStub extends system.Leaf {
     public LeafStub(String name, int size) {
 
         this.name = name;
-
-        //allocateSpace(size);
-
+        this.allocations = new int[size];
     }
 
-    private void allocateSpace(int size) throws OutOfSpaceException {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        LeafStub leafStub = (LeafStub) o;
+        return size == leafStub.size &&
+                Arrays.equals(allocations, leafStub.allocations);
+    }
 
-        FileSystem.fileStorage.Alloc(size, this);
-
+    @Override
+    public int hashCode() {
+        int result = Objects.hash(size);
+        result = 31 * result + Arrays.hashCode(allocations);
+        return result;
     }
 }

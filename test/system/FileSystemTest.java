@@ -245,7 +245,7 @@ public class FileSystemTest {
     public void fileIfNewAndGotSpaceShouldChangeWorkingTree(){
         FileSystem fileSystem = new FileSystem(4);
         String[] root = new String[]{"root"};
-        String[] mockPathNames = new String[]{"root"};
+        String[] mockPathNames = new String[]{"root", "file"};
         String[] expected = new String[]{"file"};
         try {
             fileSystem.file(mockPathNames, 3);
@@ -269,7 +269,7 @@ public class FileSystemTest {
 
         String[] fileList = fileSystem.lsdir(mockPathNames);
 
-        Assert.assertNotNull(fileList);
+        Assert.assertNull(fileList);
     }
 
     @Test
@@ -422,9 +422,9 @@ public class FileSystemTest {
         } catch (DirectoryNotEmptyException e) {
             Assert.fail("directory not Empty");
         }
-        String[] fileList = fileSystem.lsdir(root);
+        String[] fileList = fileSystem.lsdir(mockPathNames);
 
-        Assert.assertArrayEquals(fileList, expected);
+        Assert.assertArrayEquals(expected, fileList);
     }
 
     @Test
@@ -440,7 +440,7 @@ public class FileSystemTest {
             Assert.fail(String.join("/",mockPathNames) +
                     "is valid param, should not throw");
         }
-        String[] expected = new String[]{"file"};
+        String[] expected = new String[]{};
 
         try {
             fileSystem.rmdir(mockPathDirNames);
@@ -448,8 +448,7 @@ public class FileSystemTest {
             Assert.fail("directory not Empty");
         }
 
-        String[] fileList = fileSystem.lsdir(
-                Arrays.copyOf(mockPathDirNames, mockPathDirNames.length-1));
+        String[] fileList = fileSystem.lsdir(mockPathNames);
 
         Assert.assertArrayEquals(fileList, expected);
     }
@@ -512,7 +511,6 @@ public class FileSystemTest {
         String[] mockPathNames = new String[]{"root", "dir"};
         String[] mockPathFileNames = new String[]{"root", "dir", "file"};
         String[] mockPathDirNames = new String[]{"root", "dir", "dir1"};
-        Leaf mockFile = new LeafStub("file", 3);
         try {
             fileSystem.dir(mockPathNames);
             fileSystem.dir(mockPathDirNames);
@@ -526,7 +524,8 @@ public class FileSystemTest {
 
         Leaf actual = fileSystem.FileExists(mockPathFileNames);
 
-        Assert.assertEquals(mockFile, actual);
+        Assert.assertEquals("file", actual.name);
+        Assert.assertEquals("dir", actual.parent.name);
     }
 
     @Test
@@ -545,7 +544,7 @@ public class FileSystemTest {
             Assert.fail("out of space,allocated 4 entered 3");
         }
 
-       Assert.assertEquals("Leaf" ,fileSystem.FileExists(mockPathFileNames).getClass().getName());
+       Assert.assertEquals("system.Leaf" ,fileSystem.FileExists(mockPathFileNames).getClass().getName());
     }
 
     @Test
@@ -588,7 +587,6 @@ public class FileSystemTest {
         String[] mockPathNames = new String[]{"root", "dir"};
         String[] mockPathFileNames = new String[]{"root", "dir", "file"};
         String[] mockPathDirNames = new String[]{"root", "dir", "dir1"};
-        Tree mockDir = new TreeStub("dir");
         try {
             fileSystem.dir(mockPathNames);
             fileSystem.dir(mockPathDirNames);
@@ -602,7 +600,9 @@ public class FileSystemTest {
 
         Tree actual = fileSystem.DirExists(mockPathNames);
 
-        Assert.assertEquals(mockDir, actual);
+        Assert.assertEquals("dir", actual.name);
+        Assert.assertEquals("root", actual.parent.name);
+        Assert.assertEquals(2, actual.children.size());
     }
 
     @Test
@@ -617,7 +617,7 @@ public class FileSystemTest {
                     "is valid param, should not throw");
         }
 
-        Assert.assertEquals("Tree" ,fileSystem.DirExists(mockPathNames).getClass().getName());
+        Assert.assertEquals("system.Tree" ,fileSystem.DirExists(mockPathNames).getClass().getName());
     }
 
     @Test
@@ -681,7 +681,7 @@ public class FileSystemTest {
             String[][] disk = fileSystem.disk();
 
             for( int i = 0 ; i < 3 ; i++){
-                Assert.assertEquals("file", disk[i]);
+                Assert.assertArrayEquals(mockPathNames, disk[i]);
             }
 
             Assert.assertNull(disk[3]);

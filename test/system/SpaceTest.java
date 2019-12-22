@@ -4,6 +4,8 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.File;
+
 import static org.junit.Assert.*;
 
 public class SpaceTest {
@@ -17,11 +19,12 @@ public class SpaceTest {
     @Test(expected = OutOfSpaceException.class)
     public void allocationOfSpaceBiggerThanTotalSpaceShouldThrowAnException() throws OutOfSpaceException{
         Space space = new Space(10);
+        FileSystem.fileStorage = space;
         space.Alloc(11, new LeafStub("stub", 11));
     }
 
     @Test
-    public void countFreeSpaceShouldreturn10(){
+    public void countFreeSpaceShouldReturn10(){
         Space space = new Space(10);
         int expected = 10;
         int actual = space.countFreeSpace();
@@ -65,8 +68,12 @@ public class SpaceTest {
         Space space = new Space(spaceSize);
         LeafStub[] stubs = new LeafStub[]{new LeafStub("stub", fileSize)};
         space.Alloc(fileSize, stubs[0]);
+        Leaf[] actual = space.getAlloc();
 
-        Assert.assertArrayEquals(stubs, space.getAlloc());
+        for( int i = 0 ; i < 5 ; i++){
+            Assert.assertEquals(true, actual[i].equals(stubs[0]));
+        }
+
     }
     @Test
     public void deallocationsShouldRemoveLeaf() throws OutOfSpaceException {
@@ -78,6 +85,9 @@ public class SpaceTest {
         stubs[0].parent = new TreeStub("treeStub");
         space.Alloc(fileSize, stubs[0]);
         space.Dealloc(stubs[0]);
-        Assert.assertArrayEquals(new LeafStub[]{}, space.getAlloc());
+        Leaf[] actual = space.getAlloc();
+        for( int i = 0 ; i < 10 ; i++){
+            Assert.assertNull(actual[i]);
+        }
     }
 }

@@ -5,7 +5,15 @@ import org.junit.Test;
 
 public class TreeTest {
 
+    //constructor
+    @Test
+    public void TreeConstructorUpdatesName() {
+        Tree tree = new Tree("tree");
 
+        Assert.assertEquals("tree", tree.name);
+    }
+
+    // getChildByName
     @Test
     public void getChildByNameWhenNameDoesntExistResultsInItsCreation() {
         Tree tree = new Tree("tree");
@@ -32,10 +40,10 @@ public class TreeTest {
     @Test
     public void rootDepthShouldBeZero(){
         Tree tree = new Tree("tree");
-        int expecetd = 0;
+        int expected = 0;
         int actual = tree.depth;
 
-        Assert.assertEquals(expecetd, actual);
+        Assert.assertEquals(expected, actual);
     }
 
     @Test
@@ -43,10 +51,10 @@ public class TreeTest {
         Tree tree = new Tree("tree");
         Tree subTree = tree.GetChildByName("subTree");
 
-        int expecetd = tree.depth + 1;
+        int expected = tree.depth + 1;
         int actual = subTree.depth;
 
-        Assert.assertEquals(expecetd, actual);
+        Assert.assertEquals(expected, actual);
     }
 
     @Test
@@ -54,9 +62,9 @@ public class TreeTest {
         Tree tree = new Tree("tree");
         Tree subTree = tree.GetChildByName("subTree");
 
-        int expecetd = tree.depth + 1;
+        int expected = tree.depth + 1;
         int actual = subTree.depth;
 
-        Assert.assertEquals(expecetd, actual);
+        Assert.assertEquals(expected, actual);
     }
 }
