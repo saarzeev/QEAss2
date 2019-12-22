@@ -42,7 +42,6 @@ class Space {
 
             file.allocations[i] = freeBlocks.poll();
             blocks[file.allocations[i]] = file;
-
         }
 
     }

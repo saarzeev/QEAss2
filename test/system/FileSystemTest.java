@@ -53,13 +53,55 @@ public class FileSystemTest {
     }
 
     @Test
-    public void dirFunctionShouldNotThrowExceptionWhenReceivedValidParas(){
+    public void dirFunctionShouldNotThrowExceptionWhenReceivedValidParams(){
         FileSystem fileSystem = new FileSystem(1);
 
         String[] mockPathNames = new String[]{"root", "dir"};
 
         try {
             fileSystem.dir(mockPathNames);
+        } catch (BadFileNameException e) {
+            Assert.fail(String.join("/",mockPathNames) +
+                    "is valid param, should not throw");
+        }
+    }
+
+    @Test
+    public void dirFunctionShouldNotChangeWorkingTreeIfDirExist(){
+        FileSystem fileSystem = new FileSystem(1);
+        String[] root = new String[]{"root"};
+        String[] mockPathNames = new String[]{"root", "dir"};
+
+        try {
+            fileSystem.dir(mockPathNames);
+            String[] expected = fileSystem.lsdir(root);
+            fileSystem.dir(mockPathNames);
+            String[] actual = fileSystem.lsdir(root);
+
+            Assert.assertArrayEquals(expected, actual);
+        } catch (BadFileNameException e) {
+            Assert.fail(String.join("/",mockPathNames) +
+                    "is valid param, should not throw");
+        }
+    }
+
+    @Test
+    public void dirFunctionShouldChangeWorkingTreeIfDirDoseNotExist(){
+        FileSystem fileSystem = new FileSystem(1);
+        String[] root = new String[]{"root"};
+
+        String[] mockPathNames = new String[]{"root", "dir"};
+
+        try {
+            String[] noDir = fileSystem.lsdir(root);
+            fileSystem.dir(mockPathNames);
+            String[] actual = fileSystem.lsdir(root);
+
+            String[] expected = new String[]{"dir"};
+            fileSystem.dir(mockPathNames);
+
+            Assert.assertNotEquals(noDir, actual);
+            Assert.assertArrayEquals(expected, actual);
         } catch (BadFileNameException e) {
             Assert.fail(String.join("/",mockPathNames) +
                     "is valid param, should not throw");
@@ -78,7 +120,6 @@ public class FileSystemTest {
             Assert.fail("out of space,allocated 4 entered 3");
         }
     }
-
 
     @Test (expected = OutOfSpaceException.class)
     public void whenNewFileOutOfSpaceFileFunctionShouldThrow() throws OutOfSpaceException {
@@ -114,6 +155,104 @@ public class FileSystemTest {
         try {
             fileSystem.file(mockPathNames, 3);
             fileSystem.file(mockPathNames, 3);
+
+            return;
+        } catch (BadFileNameException e) {
+            Assert.fail(String.join("/",mockPathNames) +
+                    "is valid param, should not throw");
+        } catch (OutOfSpaceException e) {
+            Assert.fail("out of space,allocated 4 entered 3");
+        }
+
+    }
+
+    @Test
+    public void createsDirectoriesIfNotExist(){
+        FileSystem fileSystem = new FileSystem(4);
+        String[] root = new String[]{"root"};
+        String[] mockPathNames = new String[]{"root", "dir", "file"};
+        String[] expected = new String[]{"dir"};
+        try {
+
+            fileSystem.file(mockPathNames, 3);
+            String[] actual = fileSystem.lsdir(root);
+            Assert.assertArrayEquals(expected, actual);
+        } catch (BadFileNameException e) {
+            Assert.fail(String.join("/",mockPathNames) +
+                    "is valid param, should not throw");
+        } catch (OutOfSpaceException e) {
+            Assert.fail("out of space,allocated 4 entered 3");
+        }
+    }
+
+    @Test
+    public void fileIfFileExistShouldUpdate(){
+        FileSystem fileSystem = new FileSystem(5);
+        String[] root = new String[]{"root"};
+        String[] mockPathNames = new String[]{"root", "file"};
+        String[] expected = new String[]{"file"};
+        try {
+
+            fileSystem.file(mockPathNames, 3);
+            String[] actual = fileSystem.lsdir(root);
+
+            Assert.assertArrayEquals(expected, actual);
+            Assert.assertEquals(FileSystem.fileStorage.countFreeSpace(), 2);
+
+            fileSystem.file(mockPathNames, 4);
+
+            Assert.assertArrayEquals(expected, actual);
+            Assert.assertEquals(FileSystem.fileStorage.countFreeSpace(), 1);
+        } catch (BadFileNameException e) {
+            Assert.fail(String.join("/",mockPathNames) +
+                    "is valid param, should not throw");
+        } catch (OutOfSpaceException e) {
+            Assert.fail("out of space,allocated 5 entered 3/4");
+        }
+    }
+
+    @Test
+    public void fileIfNewFileUpdateOutOfSpaceShouldNotRemoveOld(){
+        FileSystem fileSystem = new FileSystem(4);
+        String[] root = new String[]{"root"};
+        String[] mockPathNames = new String[]{"root", "file"};
+        String[] expected = new String[]{"file"};
+        try {
+
+            fileSystem.file(mockPathNames, 3);
+
+        } catch (BadFileNameException e) {
+            Assert.fail(String.join("/",mockPathNames) +
+                    "is valid param, should not throw");
+        } catch (OutOfSpaceException e) {
+            Assert.fail("out of space,allocated 4 entered 3");
+        }
+        try {
+            fileSystem.file(mockPathNames, 4);
+        } catch (BadFileNameException e) {
+            Assert.fail(String.join("/",mockPathNames) +
+                    "is valid param, should not throw");
+        } catch (OutOfSpaceException e) {
+            String[] actual = fileSystem.lsdir(root);
+
+            Assert.assertArrayEquals(expected, actual);
+            Assert.assertEquals(FileSystem.fileStorage.countFreeSpace(), 2);
+            return;
+        }
+    }
+
+    @Test
+    public void fileIfNewAndGotSpaceShouldChangeWorkingTree(){
+        FileSystem fileSystem = new FileSystem(4);
+        String[] root = new String[]{"root"};
+        String[] mockPathNames = new String[]{"root"};
+        String[] expected = new String[]{"file"};
+        try {
+            fileSystem.file(mockPathNames, 3);
+
+            String[] actual = fileSystem.lsdir(root);
+
+            Assert.assertArrayEquals(expected, actual);
         } catch (BadFileNameException e) {
             Assert.fail(String.join("/",mockPathNames) +
                     "is valid param, should not throw");
@@ -160,7 +299,7 @@ public class FileSystemTest {
         try {
             fileSystem.dir(mockPathNames);
             fileSystem.dir(mockPathDirNames);
-            fileSystem.file(mockPathFileNames,3;
+            fileSystem.file(mockPathFileNames,3);
         } catch (BadFileNameException e) {
             Assert.fail(String.join("/",mockPathNames) +
                     "is valid param, should not throw");
@@ -194,12 +333,15 @@ public class FileSystemTest {
             Assert.fail("out of space,allocated 4 entered 3");
         }
         String[] root = new String[]{"root"};
-        String[] expected = new String[]{"dir1", "file"};
+        String[] expectedDir = new String[]{"dir"};
+        String[] expectedFiles = new String[]{"dir1", "file"};
 
         fileSystem.rmfile(mockUnexistingFile);
-        String[] fileList = fileSystem.lsdir(root);
+        String[] fileListRoot = fileSystem.lsdir(root);
+        String[] fileListDir = fileSystem.lsdir(mockPathNames);
 
-        Assert.assertArrayEquals(fileList, expected);
+        Assert.assertArrayEquals(fileListRoot, expectedDir);
+        Assert.assertArrayEquals(fileListDir, expectedFiles);
     }
 
     @Test
@@ -222,8 +364,7 @@ public class FileSystemTest {
         String[] expected = new String[]{"dir1"};
 
         fileSystem.rmfile(mockPathFileNames);
-        String[] fileList = fileSystem.lsdir(
-                Arrays.copyOf(mockPathFileNames, mockPathFileNames.length-1));
+        String[] fileList = fileSystem.lsdir(mockPathNames);
 
         Assert.assertArrayEquals(fileList, expected);
     }
@@ -333,18 +474,223 @@ public class FileSystemTest {
         String[] expected = new String[]{"dir1", "file"};
 
         try {
-            fileSystem.rmdir(mockPathDirNames);
+            fileSystem.rmdir(mockPathFileNames);
         } catch (DirectoryNotEmptyException e) {
             Assert.fail("directory not Empty");
         }
         String[] fileList = fileSystem.lsdir(
-                Arrays.copyOf(mockPathDirNames, mockPathDirNames.length-1));
+                Arrays.copyOf(mockPathFileNames, mockPathFileNames.length-1));
 
         Assert.assertArrayEquals(fileList, expected);
     }
 
     @Test (expected = DirectoryNotEmptyException.class)
     public void rmdirFunctionShouldThrowIfDirectoryNotEmpty() throws DirectoryNotEmptyException {
+        FileSystem fileSystem = new FileSystem(4);
+        String[] mockPathNames = new String[]{"root", "dir"};
+        String[] mockPathFileNames = new String[]{"root", "dir", "file"};
+        String[] mockPathDirNames = new String[]{"root", "dir", "dir1"};
 
+        try {
+            fileSystem.dir(mockPathNames);
+            fileSystem.dir(mockPathDirNames);
+            fileSystem.file(mockPathFileNames,3);
+        } catch (BadFileNameException e) {
+            Assert.fail(String.join("/",mockPathNames) +
+                    "is valid param, should not throw");
+        } catch (OutOfSpaceException e) {
+            Assert.fail("out of space,allocated 4 entered 3");
+        }
+
+        fileSystem.rmdir(mockPathNames);
+    }
+
+    //FileExists
+    @Test
+    public void fileExistsShouldReturnFileIfExist() {
+        FileSystem fileSystem = new FileSystem(4);
+        String[] mockPathNames = new String[]{"root", "dir"};
+        String[] mockPathFileNames = new String[]{"root", "dir", "file"};
+        String[] mockPathDirNames = new String[]{"root", "dir", "dir1"};
+        Leaf mockFile = new LeafStub("file", 3);
+        try {
+            fileSystem.dir(mockPathNames);
+            fileSystem.dir(mockPathDirNames);
+            fileSystem.file(mockPathFileNames,3);
+        } catch (BadFileNameException e) {
+            Assert.fail(String.join("/",mockPathNames) +
+                    "is valid param, should not throw");
+        } catch (OutOfSpaceException e) {
+            Assert.fail("out of space, allocated 4 entered 3");
+        }
+
+        Leaf actual = fileSystem.FileExists(mockPathFileNames);
+
+        Assert.assertEquals(mockFile, actual);
+    }
+
+    @Test
+    public void fileExistsShouldReturnLeafTypeIfFileExist() {
+        FileSystem fileSystem = new FileSystem(4);
+        String[] mockPathNames = new String[]{"root", "dir"};
+        String[] mockPathFileNames = new String[]{"root", "dir", "file"};
+
+        try {
+            fileSystem.dir(mockPathNames);
+            fileSystem.file(mockPathFileNames,3);
+        } catch (BadFileNameException e) {
+            Assert.fail(String.join("/",mockPathNames) +
+                    "is valid param, should not throw");
+        } catch (OutOfSpaceException e) {
+            Assert.fail("out of space,allocated 4 entered 3");
+        }
+
+       Assert.assertEquals("Leaf" ,fileSystem.FileExists(mockPathFileNames).getClass().getName());
+    }
+
+    @Test
+    public void fileExistsShouldReturnNullIfNotExist() {
+        FileSystem fileSystem = new FileSystem(4);
+        String[] mockPathNames = new String[]{"root", "dir"};
+        String[] mockPathFileNames = new String[]{"root", "dir", "file"};
+        String[] mockPathDirNames = new String[]{"root", "dir", "dir1"};
+
+        try {
+            fileSystem.dir(mockPathNames);
+            fileSystem.dir(mockPathDirNames);
+        } catch (BadFileNameException e) {
+            Assert.fail(String.join("/", mockPathNames) +
+                    "is valid param, should not throw");
+        }
+
+       Assert.assertNull(fileSystem.FileExists(mockPathFileNames));
+    }
+
+    @Test
+    public void fileExistsShouldReturnNullIfReceivedDir() {
+        FileSystem fileSystem = new FileSystem(4);
+        String[] mockPathNames = new String[]{"root", "dir"};
+
+        try {
+            fileSystem.dir(mockPathNames);
+
+        } catch (BadFileNameException e) {
+            Assert.fail(String.join("/",mockPathNames) +
+                    "is valid param, should not throw");
+        }
+        Assert.assertNull(fileSystem.FileExists(mockPathNames));
+    }
+
+    //DirExists
+    @Test
+    public void dirExistsShouldReturnDirIfExist() {
+        FileSystem fileSystem = new FileSystem(4);
+        String[] mockPathNames = new String[]{"root", "dir"};
+        String[] mockPathFileNames = new String[]{"root", "dir", "file"};
+        String[] mockPathDirNames = new String[]{"root", "dir", "dir1"};
+        Tree mockDir = new TreeStub("dir");
+        try {
+            fileSystem.dir(mockPathNames);
+            fileSystem.dir(mockPathDirNames);
+            fileSystem.file(mockPathFileNames,3);
+        } catch (BadFileNameException e) {
+            Assert.fail(String.join("/",mockPathNames) +
+                    "is valid param, should not throw");
+        } catch (OutOfSpaceException e) {
+            Assert.fail("out of space, allocated 4 entered 3");
+        }
+
+        Tree actual = fileSystem.DirExists(mockPathNames);
+
+        Assert.assertEquals(mockDir, actual);
+    }
+
+    @Test
+    public void dirExistsShouldReturnTreeTypeIfDirExist() {
+        FileSystem fileSystem = new FileSystem(4);
+        String[] mockPathNames = new String[]{"root", "dir"};
+
+        try {
+            fileSystem.dir(mockPathNames);
+        } catch (BadFileNameException e) {
+            Assert.fail(String.join("/",mockPathNames) +
+                    "is valid param, should not throw");
+        }
+
+        Assert.assertEquals("Tree" ,fileSystem.DirExists(mockPathNames).getClass().getName());
+    }
+
+    @Test
+    public void dirExistsShouldReturnNullIfNotExist() {
+        FileSystem fileSystem = new FileSystem(4);
+        String[] mockPathNames = new String[]{"root", "dir"};
+
+        String[] mockPathDirNames = new String[]{"root", "dir", "dir1"};
+
+        try {
+            fileSystem.dir(mockPathNames);
+        } catch (BadFileNameException e) {
+            Assert.fail(String.join("/", mockPathNames) +
+                    "is valid param, should not throw");
+        }
+
+        Assert.assertNull(fileSystem.DirExists(mockPathDirNames));
+    }
+
+    @Test
+    public void dirExistsShouldReturnNullIfReceivedFile() {
+        FileSystem fileSystem = new FileSystem(4);
+        String[] mockPathNames = new String[]{"root", "file"};
+
+        try {
+            fileSystem.file(mockPathNames, 3);
+
+        } catch (BadFileNameException e) {
+            Assert.fail(String.join("/",mockPathNames) +
+                    "is valid param, should not throw");
+        } catch (OutOfSpaceException e) {
+            Assert.fail("out of space, allocated 4 entered 3");
+        }
+        Assert.assertNull(fileSystem.DirExists(mockPathNames));
+    }
+
+    //Disk
+    @Test
+    public void diskFunctionReturnsRigthSizeOfDiskMatrix() {
+        FileSystem fileSystem = new FileSystem(4);
+        String[][] disk = fileSystem.disk();
+        Assert.assertEquals(4, disk.length);
+    }
+
+    @Test
+    public void diskFunctionReturnsNullEateriesWhenAllEmpty() {
+        FileSystem fileSystem = new FileSystem(4);
+        String[][] disk = fileSystem.disk();
+        for( int i = 0 ; i < disk.length ; i++){
+            Assert.assertNull( disk[i]);
+        }
+    }
+
+    @Test
+    public void diskFunctionReturnsNullEateriesWhenWhereEmpty() {
+        FileSystem fileSystem = new FileSystem(4);
+        String[] mockPathNames = new String[]{"root", "file"};
+        try {
+            fileSystem.file(mockPathNames, 3);
+
+            String[][] disk = fileSystem.disk();
+
+            for( int i = 0 ; i < 3 ; i++){
+                Assert.assertEquals("file", disk[i]);
+            }
+
+            Assert.assertNull(disk[3]);
+
+        } catch (BadFileNameException e) {
+            Assert.fail(String.join("/",mockPathNames) +
+                    "is valid param, should not throw");
+        } catch (OutOfSpaceException e) {
+            Assert.fail("out of space, allocated 4 entered 3");
+        }
     }
 }
