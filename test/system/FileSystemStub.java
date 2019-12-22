@@ -1,7 +1,7 @@
 package system;
 
 public class FileSystemStub extends FileSystem {
-    private TreeStub fileSystemTreeStub;
+    public TreeStub fileSystemTreeStub;
     /**
      * Ctor - Initialise filesystem with empty root directory and \c m KB of space
      *
