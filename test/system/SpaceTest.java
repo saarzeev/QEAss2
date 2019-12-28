@@ -1,7 +1,7 @@
 package system;
 
 import org.junit.Assert;
-import org.junit.BeforeClass;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.io.File;
@@ -9,20 +9,27 @@ import java.io.File;
 import static org.junit.Assert.*;
 
 public class SpaceTest {
+    @Before
+    public void initFileSystem(){
+        FileSystem fs = new FileSystem(10);
+    }
 
     @Test
     public void allocationOfSpaceSmallerThanTotalSpaceShouldBeSuccessful() throws OutOfSpaceException {
         Space space = new Space(10);
         space.Alloc(5, new LeafStub("stub", 5));
+        int expected = 5;
+        int actual = space.countFreeSpace();
+        Assert.assertEquals(expected, actual);
     }
 
     @Test(expected = OutOfSpaceException.class)
     public void allocationOfSpaceBiggerThanTotalSpaceShouldThrowAnException() throws OutOfSpaceException{
         Space space = new Space(10);
-        FileSystem.fileStorage = space;
-        space.Alloc(11, new LeafStub("stub", 11));
+        //FileSystem.fileStorage = space;
+        space.Alloc(11, new LeafStub("stub", 5));
     }
-
+//
     @Test
     public void countFreeSpaceShouldReturn10(){
         Space space = new Space(10);
@@ -60,6 +67,7 @@ public class SpaceTest {
         int actual = space.countFreeSpace();
         Assert.assertEquals(expected, actual);
     }
+
     @Test
     public void allocationsShouldBeSaved() throws OutOfSpaceException {
         int spaceSize = 10;
@@ -75,6 +83,7 @@ public class SpaceTest {
         }
 
     }
+
     @Test
     public void deallocationsShouldRemoveLeaf() throws OutOfSpaceException {
         int spaceSize = 10;

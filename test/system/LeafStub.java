@@ -24,10 +24,11 @@ class LeafStub extends system.Leaf {
      * @param size Size, in KB, of the leaf.
      * @throws OutOfSpaceException Allocating space failed.
      */
-    public LeafStub(String name, int size) {
-
-        this.name = name;
-        this.allocations = new int[size];
+    public LeafStub(String name, int size) throws OutOfSpaceException {
+        //String name, int size
+        super(name, size);
+//        this.name = name;
+//        this.allocations = new int[size];
     }
 
     @Override

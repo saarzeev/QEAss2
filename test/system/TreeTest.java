@@ -46,16 +46,6 @@ public class TreeTest {
         Assert.assertEquals(expected, actual);
     }
 
-    @Test
-    public void depthOfSubTreeShouldRootPlusOne(){
-        Tree tree = new Tree("tree");
-        Tree subTree = tree.GetChildByName("subTree");
-
-        int expected = tree.depth + 1;
-        int actual = subTree.depth;
-
-        Assert.assertEquals(expected, actual);
-    }
 
     @Test
     public void depthOfTreeShouldGrowByOneAfterAddingChild(){

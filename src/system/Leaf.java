@@ -28,12 +28,12 @@ class Leaf extends Node {
 
     }
 
-    /**
-     * Ctor = create leaf, used for unit testing.
-     */
-    protected Leaf(){
-
-    }
+//    /**
+//     * Ctor = create leaf, used for unit testing.
+//     */
+//    protected Leaf(){
+//
+//    }
 
     private void allocateSpace(int size) throws OutOfSpaceException {
 
